@@ -1,22 +1,113 @@
-importar { Terminal } desde '@es-js/terminal'
+import { Terminal } from "@es-js/terminal"
+import { obtenerJson } from "https://desarrollo-aplicaciones.vercel.app/2024/code/obtener-json.js"
+import { validarSecreto } from "https://desarrollo-aplicaciones.vercel.app/2024/code/validar-secreto.js"
+// import confetti from "npm/canvas-confetti/+esm"
 
-asincrono funcion inicio() {
-	Terminal.limpiar()
 
-	Terminal.escribir('Ingresa un valor:')
 
-	const resultado = esperar Terminal.leer()
 
-	Terminal.escribir({
-		Resultado: resultado,
-		Tipo: tipoDe resultado,
-	})
 
-	Terminal.escribir('Presiona ENTER para volver a iniciar')
 
-	esperar Terminal.leerEnter()
+async function inicio() {
+  saludo()
+  Terminal.log("Hola! Ingresa la palabra secreta:")
 
-	esperar inicio()
+  var secreto = await Terminal.leer()
+
+  var dni = "42706292" // Ingresa tu DNI aquí 👈
+
+  if (await validarSecreto(dni, secreto)) {
+    console.log("Ingreso con exito señor Romero")
+    tirarFuegosArtificiales()
+    Terminal.log("*".repeat(50))
+    await mostrarCotizacion()
+    
+    
+  } else {
+    Terminal.log("Palabra secreta inválida")
+  }
+
+  Terminal.log("Presiona ENTER para volver a ingresar")
+
+  await Terminal.leerEnter()
+
+  Terminal.clear()
+
+  inicio()
+}
+
+function saludo(){
+  
+  
+}
+
+async function mostrarCotizacion() {
+  try {
+    const dolarBlue = await obtenerJson('https://dolarapi.com/v1/dolares/blue');
+    
+    let fechaFormateada = formatearFecha(dolarBlue.fechaActualizacion);
+
+    Terminal.log("Tipo de moneda: " + dolarBlue.moneda);
+    Terminal.log("Nombre: " + dolarBlue.nombre);
+    Terminal.log("Precio dolar venta: " + dolarBlue.venta);
+    Terminal.log("Precio dolar compra: " + dolarBlue.compra);
+    Terminal.log("Fecha de actualización: " + fechaFormateada);
+  } catch (error) {
+    console.error("Error al obtener la cotización del dólar Blue:", error);
+  }
+}
+
+function formatearFecha(fechaISO) {
+  
+  let fecha = new Date(fechaISO);
+
+  let dia = fecha.getDate();
+  let mes = fecha.getMonth() + 1; 
+  let anio = fecha.getFullYear();
+
+  if (dia < 10) dia = '0' + dia;
+  if (mes < 10) mes = '0' + mes;
+
+  return dia + '/' + mes + '/' + anio;
+}
+
+function tirarFuegosArtificiales() {
+  const duracion = 4 * 1000 // 4 segundos
+  const animacionFin = Date.now() + duracion
+  const opcionesPorDefecto = {
+    startVelocity: 30,
+    spread: 360,
+    ticks: 60,
+    zIndex: 0,
+  }
+
+  function aleatorioEnRango(min, max) {
+    return Math.random() * (max - min) + min
+  }
+
+  const intervalo = setInterval(function () {
+    const tiempoRestante = animacionFin - Date.now()
+
+    console.log("Tiempo restante: " + tiempoRestante / 1000 + " segundos")
+
+    if (tiempoRestante <= 0) {
+      console.log("Fin de la animación")
+      return clearInterval(intervalo)
+    }
+
+    const cantidadParticulas = 50 * (tiempoRestante / duracion)
+
+    confetti({
+      ...opcionesPorDefecto,
+      particleCount: cantidadParticulas,
+      origin: { x: aleatorioEnRango(0.1, 0.3), y: Math.random() - 0.2 },
+    })
+    confetti({
+      ...opcionesPorDefecto,
+      particleCount: cantidadParticulas,
+      origin: { x: aleatorioEnRango(0.7, 0.9), y: Math.random() - 0.2 },
+    })
+  }, 250)
 }
 
 inicio()
